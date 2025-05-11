@@ -17,7 +17,7 @@ namespace javabus_api.Controllers
             _context = context;
         }
 
-        [HttpGet("api/javabus")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<City>>> GetCities()
         {
             var cities = await _context.Cities
@@ -25,12 +25,12 @@ namespace javabus_api.Controllers
                 .ToListAsync();
 
             if (cities == null || cities.Count == 0)
-                return NotFound(new { message = "No cities found" });
+                return NotFound(new { message = "Tidak ada data kota" });
 
             return Ok(cities);
         }
 
-        [HttpGet("api/javabus/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<City>> GetCity(int id)
         {
             var city = await _context.Cities
@@ -38,63 +38,59 @@ namespace javabus_api.Controllers
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (city == null)
-                return NotFound(new { message = "City not found" });
+                return NotFound(new { message = "Kota tidak ditemukan" });
 
             return Ok(city);
         }
 
-        [HttpPost("api/javabus"), Authorize(Roles = "admin")]
+        [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<City>> CreateCity(City city)
         {
             try
             {
                 _context.Cities.Add(city);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetCity), new { id = city.Id }, city);
+                CreatedAtAction(nameof(GetCity), new { id = city.Id }, city);
+                return Ok(new {message = "Berhasil menambahkan data kota"});
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error creating city", error = ex.Message });
+                return BadRequest(new { message = "Gagal menambahkan data kota!", error = ex.Message });
             }
         }
 
-        [HttpPut("api/javabus/{id}"), Authorize(Roles = "admin")]
+        [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateCity(int id, City city)
         {
-            if (id != city.Id)
-                return BadRequest(new { message = "ID mismatch" });
+            var cityData = await _context.Cities.FindAsync(id);
+            if (cityData == null)
+                return NotFound(new { message = "Kota dengan id tersebut tidak ditemukan" });
 
-            _context.Entry(city).State = EntityState.Modified;
+            cityData.Name = city.Name;
+            cityData.ProvinceId = city.ProvinceId;
 
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(city);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Cities.Any(e => e.Id == id))
-                    return NotFound(new { message = "City not found" });
-
-                throw;
+                return Ok(new {messsage = "Berhasil memperbarui data kota"});
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error updating city", error = ex.Message });
+                return BadRequest(new { message = "Gagal memperbarui data kota!", error = ex.Message });
             }
         }
 
-        [HttpDelete("api/javabus/{id}"), Authorize(Roles = "admin")]
+        [HttpDelete("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCity(int id)
         {
             var city = await _context.Cities.FindAsync(id);
             if (city == null)
-                return NotFound(new { message = "City not found" });
+                return NotFound(new { message = "Kota tidak ditemukan" });
 
             _context.Cities.Remove(city);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "City deleted" });
+            return Ok(new { message = "Kota berhasil dihapus" });
         }
     }
 }

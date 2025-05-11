@@ -32,7 +32,7 @@ namespace javabus_api.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "success register new user" });
+            return Ok(new { message = "Berhasil menambahkan pengguna baru" });
         }
 
         [HttpPost("login")]
@@ -43,7 +43,7 @@ namespace javabus_api.Controllers
                 .FirstOrDefaultAsync(u => u.Username == request.Username);
 
             if (user == null || !VerifyPassword(request.Password, user.Password))
-                return Unauthorized(new { message = "Invalid credentials" });
+                return Unauthorized(new { message = "Username atau password salah!" });
 
             var token = _jwt.GenerateToken(user);
 

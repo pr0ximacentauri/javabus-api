@@ -29,7 +29,7 @@ namespace javabus_api.Helpers
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Name, user.FullName ?? string.Empty),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? "User")
+                new Claim(ClaimTypes.Role, user.Role?.Name ?? "customer")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

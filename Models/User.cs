@@ -7,7 +7,6 @@ namespace javabus_api.Models
     public class User
     {
         [Column("id_user")]
-        [JsonIgnore]
         public int Id { get; set; }
         [Column("username")]
         public string Username { get; set; }
@@ -18,8 +17,7 @@ namespace javabus_api.Models
         [Column("password")]
         public string Password { get; set; }
 
-        [Column("fk_role")]
-        [JsonIgnore]
+        [Column("fk_role"), JsonIgnore]
         public int RoleId { get; set; } = 2;
         [JsonIgnore]
         public Role? Role { get; set; }

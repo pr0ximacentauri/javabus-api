@@ -8,10 +8,13 @@ namespace javabus_api.Contexts
 {
     public class ApplicationDBContext : DbContext
     {
+        public DbSet<Booking> Bookings { get; set; }
         public DbSet<Bus> Buses {  get; set; }
-        public DbSet<Province> Provinces { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Payment> Payment { get; set; }
+        public DbSet<Province> Provinces { get; set; }
         public DbSet<Models.Route> Routes { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<User> Users { get; set; }
 
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) 

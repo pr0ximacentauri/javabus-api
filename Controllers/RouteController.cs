@@ -16,7 +16,7 @@ namespace javabus_api.Controllers
             _context = context;
         }
 
-        [HttpGet("api/javabus")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Models.Route>>> GetRoutes()
         {
             var routes = await _context.Routes
@@ -24,12 +24,12 @@ namespace javabus_api.Controllers
                 .Include(r => r.DestinationCity)
                 .ToListAsync();
             if (routes == null || routes.Count == 0)
-                return NotFound(new { message = "No bus routes found" });
+                return NotFound(new { message = "Data rute perjalanan tidak ditemukan" });
 
             return Ok(routes);
         }
 
-        [HttpGet("api/javabus/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Models.Route>> GetRoute(int id)
         {
             var route = await _context.Routes
@@ -38,63 +38,59 @@ namespace javabus_api.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (route == null)
-                return NotFound(new { message = "Route not found" });
+                return NotFound(new { message = "Data rute perjalanan tidak ditemukan" });
 
             return route;
         }
 
-        [HttpPost("api/javabus"), Authorize(Roles = "admin")]
+        [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Models.Route>> CreateRoute(Models.Route route)
         {
             try
             {
                 _context.Routes.Add(route);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
+                CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
+                return Ok(new { message = "Berhasil menambahkan rute perjalanan" });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error creating route", error = ex.Message });
+                return BadRequest(new { message = "Gagal menambahkan rute perjalanan", error = ex.Message });
             }
         }
 
-        [HttpPut("api/javabus/{id}"), Authorize(Roles = "admin")]
+        [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateRoute(int id, Models.Route route)
         {
-            if (id != route.Id)
-                return BadRequest(new { message = "ID mismatch" });
+            var routeData = await _context.Routes.FindAsync(id);
+            if (routeData == null)
+                return NotFound(new { message = "Rute perjalanan dengan id tersebut tidak ditemukan" });
 
-            _context.Entry(route).State = EntityState.Modified;
+            routeData.OriginCityId = route.OriginCityId;
+            routeData.DestinationCityId = route.DestinationCityId;
 
             try
             {
                 await _context.SaveChangesAsync();
                 return Ok(route);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Routes.Any(e => e.Id == id))
-                    return NotFound(new { message = "Route not found" });
-
-                throw;
-            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Update failed", error = ex.Message });
+                return BadRequest(new { message = "Gagal update data rute perjalanan", error = ex.Message });
             }
         }
 
-        [HttpDelete("api/javabus/{id}"), Authorize(Roles = "admin")]
+        [HttpDelete("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteRoute(int id)
         {
             var route = await _context.Routes.FindAsync(id);
             if (route == null)
-                return NotFound(new { message = "Route not found" });
+                return NotFound(new { message = "Data rute perjalanan tidak ditemukan" });
 
             _context.Routes.Remove(route);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Route deleted" });
+            return Ok(new { message = "Rute perjalanan berhasil dihapus" });
         }
     }
 }

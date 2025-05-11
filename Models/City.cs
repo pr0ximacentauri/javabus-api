@@ -13,7 +13,6 @@ namespace javabus_api.Models
         [Column("fk_province")]
         public int ProvinceId { get; set; }
         [JsonIgnore]
-        //[ForeignKey("ProvinceId")]
         public Province? Province { get; set; }
     }
 }

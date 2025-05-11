@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace javabus_api.Models
 {
@@ -11,8 +12,6 @@ namespace javabus_api.Models
         public string Name { get; set; }
         [Column("class")]
         public string BusClass { get; set; }
-        [Column("plate_number")]
-        public string PlateNumber { get; set; }
         [Column("total_seat")]
         public int TotalSeat { get; set; }
     }

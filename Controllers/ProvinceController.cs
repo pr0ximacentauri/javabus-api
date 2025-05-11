@@ -43,12 +43,20 @@ namespace javabus_api.Controllers
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Province>> CreateProvince(Province province)
         {
+            if (string.IsNullOrWhiteSpace(province.Name))
+                return BadRequest(new { message = "Nama provinsi tidak boleh kosong" });
+
+            var duplicateProvince = await _context.Provinces
+                .AnyAsync(p => p.Name.ToLower() == province.Name.ToLower());
+
+            if (duplicateProvince)
+                return Conflict(new { message = "Provinsi dengan nama tersebut sudah ada" });
+
             try
             {
                 _context.Provinces.Add(province);
                 await _context.SaveChangesAsync();
-                CreatedAtAction(nameof(GetProvince), new { id = province.Id }, province);
-                return Ok(new { message = "Berhasil menambahkan data provinsi" });
+                return CreatedAtAction(nameof(GetProvince), new { id = province.Id }, province);
             }
             catch (Exception ex)
             {
@@ -57,18 +65,27 @@ namespace javabus_api.Controllers
         }
 
         [HttpPut("{id}"), Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateCity(int id, Province province)
+        public async Task<IActionResult> UpdateProvince(int id, Province province)
         {
-            var cityData = await _context.Provinces.FindAsync(id);
-            if (cityData == null)
+            if (string.IsNullOrWhiteSpace(province.Name))
+                return BadRequest(new { message = "Nama provinsi tidak boleh kosong" });
+
+            var provinceData = await _context.Provinces.FindAsync(id);
+            if (provinceData == null)
                 return NotFound(new { message = "Provinsi dengan id tersebut tidak ditemukan" });
 
-            cityData.Name = province.Name;
+            var duplicateProvince = await _context.Provinces
+                .AnyAsync(p => p.Id != id && p.Name.ToLower() == province.Name.ToLower());
+
+            if (duplicateProvince)
+                return Conflict(new { message = "Provinsi dengan nama tersebut sudah ada" });
+
+            provinceData.Name = province.Name;
 
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(new { messsage = "Berhasil memperbarui data provinsi" });
+                return Ok(new { message = "Berhasil memperbarui data provinsi" });
             }
             catch (Exception ex)
             {

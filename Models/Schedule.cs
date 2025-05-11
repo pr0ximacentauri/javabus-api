@@ -16,9 +16,11 @@ namespace javabus_api.Models
         public int BusId { get; set; }
         [Column("fk_route")]
         public int RouteId { get; set; }
+
+
         [JsonIgnore]
         public Bus? Bus { get; set; }
         [JsonIgnore]
-        public Models.Route Route { get; set; }
+        public Models.Route? Route { get; set; }
     }
 }

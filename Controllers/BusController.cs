@@ -45,12 +45,24 @@ namespace javabus_api.Controllers
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Bus>> CreateBus(Bus bus)
         {
+            if (string.IsNullOrWhiteSpace(bus.Name) || string.IsNullOrWhiteSpace(bus.BusClass) || bus.TotalSeat <= 0)
+            {
+                return BadRequest(new { message = "Semua field harus diisi dengan benar!" });
+            }
+
+            bool busExists = await _context.Buses
+                .AnyAsync(b => b.Name.ToLower() == bus.Name.ToLower() && b.BusClass.ToLower() == bus.BusClass.ToLower());
+
+            if (busExists)
+            {
+                return Conflict(new { message = "Bus dengan nama dan kelas yang sama sudah ada" });
+            }
+
             try
             {
                 _context.Buses.Add(bus);
                 await _context.SaveChangesAsync();
-                CreatedAtAction(nameof(GetBus), new { id = bus.Id }, bus);
-                return Ok(new {message = "Berhasil menambahkan data bus"});
+                return CreatedAtAction(nameof(GetBus), new { id = bus.Id }, new { message = "Berhasil menambahkan data bus", bus });
             }
             catch (Exception ex)
             {
@@ -61,9 +73,22 @@ namespace javabus_api.Controllers
         [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateBus(int id, Bus bus)
         {
+            if (string.IsNullOrWhiteSpace(bus.Name) || string.IsNullOrWhiteSpace(bus.BusClass) || bus.TotalSeat <= 0)
+            {
+                return BadRequest(new { message = "Semua field harus diisi dengan benar." });
+            }
+
             var busData = await _context.Buses.FindAsync(id);
             if (busData == null)
-                return NotFound(new { message = "Kota dengan id tersebut tidak ditemukan" });
+                return NotFound(new { message = "Bus dengan id tersebut tidak ditemukan" });
+
+            bool duplicate = await _context.Buses
+                .AnyAsync(b => b.Id != id && b.Name.ToLower() == bus.Name.ToLower() && b.BusClass.ToLower() == bus.BusClass.ToLower());
+
+            if (duplicate)
+            {
+                return Conflict(new { message = "Bus dengan nama dan kelas yang sama sudah ada" });
+            }
 
             busData.Name = bus.Name;
             busData.BusClass = bus.BusClass;

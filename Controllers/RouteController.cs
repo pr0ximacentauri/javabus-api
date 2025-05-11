@@ -46,12 +46,29 @@ namespace javabus_api.Controllers
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Models.Route>> CreateRoute(Models.Route route)
         {
+            if (route.OriginCityId == 0 || route.DestinationCityId == 0)
+                return BadRequest(new { message = "Kota asal dan tujuan wajib diisi" });
+
+            if (route.OriginCityId == route.DestinationCityId)
+                return BadRequest(new { message = "Kota asal dan tujuan tidak boleh sama" });
+
+            var originExists = await _context.Cities.AnyAsync(c => c.Id == route.OriginCityId);
+            var destinationExists = await _context.Cities.AnyAsync(c => c.Id == route.DestinationCityId);
+
+            if (!originExists || !destinationExists)
+                return BadRequest(new { message = "Kota asal atau tujuan tidak ditemukan di database" });
+
+            var isDuplicate = await _context.Routes
+                .AnyAsync(r => r.OriginCityId == route.OriginCityId && r.DestinationCityId == route.DestinationCityId);
+
+            if (isDuplicate)
+                return Conflict(new { message = "Rute dengan kota asal dan tujuan tersebut sudah ada" });
+
             try
             {
                 _context.Routes.Add(route);
                 await _context.SaveChangesAsync();
-                CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
-                return Ok(new { message = "Berhasil menambahkan rute perjalanan" });
+                return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
             }
             catch (Exception ex)
             {
@@ -62,9 +79,29 @@ namespace javabus_api.Controllers
         [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateRoute(int id, Models.Route route)
         {
+            if (route.OriginCityId == 0 || route.DestinationCityId == 0)
+                return BadRequest(new { message = "Kota asal dan tujuan wajib diisi" });
+
+            if (route.OriginCityId == route.DestinationCityId)
+                return BadRequest(new { message = "Kota asal dan tujuan tidak boleh sama" });
+
+            var originExists = await _context.Cities.AnyAsync(c => c.Id == route.OriginCityId);
+            var destinationExists = await _context.Cities.AnyAsync(c => c.Id == route.DestinationCityId);
+
+            if (!originExists || !destinationExists)
+                return BadRequest(new { message = "Kota asal atau tujuan tidak ditemukan di database" });
+
             var routeData = await _context.Routes.FindAsync(id);
             if (routeData == null)
                 return NotFound(new { message = "Rute perjalanan dengan id tersebut tidak ditemukan" });
+
+            var isDuplicate = await _context.Routes
+                .AnyAsync(r => r.Id != id &&
+                               r.OriginCityId == route.OriginCityId &&
+                               r.DestinationCityId == route.DestinationCityId);
+
+            if (isDuplicate)
+                return Conflict(new { message = "Rute dengan kota asal dan tujuan tersebut sudah ada" });
 
             routeData.OriginCityId = route.OriginCityId;
             routeData.DestinationCityId = route.DestinationCityId;
@@ -72,7 +109,7 @@ namespace javabus_api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(route);
+                return Ok(new { message = "Berhasil memperbarui rute perjalanan" });
             }
             catch (Exception ex)
             {

@@ -9,7 +9,6 @@ namespace javabus_api.Models
         [Column("id_province")]
         public int Id { get; set; }
         [Column("name")]
-        public string Name { get; set; }    
-        //public ICollection<City> Cities { get; set; }
+        public string Name { get; set; }   
     }
 }

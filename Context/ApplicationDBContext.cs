@@ -28,9 +28,6 @@ namespace javabus_api.Contexts
                 .WithMany()
                 .HasForeignKey(c => c.ProvinceId)
                 .OnDelete(DeleteBehavior.Restrict);
-            //modelBuilder.Entity<City>()
-            //    .Property(c => c.ProvinceId)
-            //    .HasColumnName("fk_province");
 
             modelBuilder.Entity<Models.Route>()
                 .HasOne(r => r.OriginCity)
@@ -43,6 +40,17 @@ namespace javabus_api.Contexts
                 .WithMany()
                 .HasForeignKey(r => r.DestinationCityId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Schedule>()
+                .HasOne(s => s.Bus)
+                .WithMany() 
+                .HasForeignKey(s => s.BusId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Schedule>()
+                .HasOne(s => s.Route)
+                .WithMany()
+                .HasForeignKey(s => s.RouteId)
+                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

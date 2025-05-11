@@ -8,7 +8,7 @@ namespace javabus_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CityController : ControllerBase
+    public class CityController : ControllerBase    
     {
         private readonly ApplicationDBContext _context;
 
@@ -43,15 +43,31 @@ namespace javabus_api.Controllers
             return Ok(city);
         }
 
+
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<City>> CreateCity(City city)
         {
+            if (string.IsNullOrWhiteSpace(city.Name))
+                return BadRequest(new { message = "Nama kota tidak boleh kosong" });
+
+            if (city.ProvinceId <= 0)
+                return BadRequest(new { message = "ProvinceId tidak valid" });
+
+            var existingProvince = await _context.Provinces.FindAsync(city.ProvinceId);
+            if (existingProvince == null)
+                return BadRequest(new { message = "Provinsi tidak ditemukan" });
+
+            var duplicateCity = await _context.Cities
+                .AnyAsync(c => c.Name.ToLower() == city.Name.ToLower() && c.ProvinceId == city.ProvinceId);
+
+            if (duplicateCity)
+                return Conflict(new { message = "Kota dengan nama tersebut sudah ada di provinsi ini" });
+
             try
             {
                 _context.Cities.Add(city);
                 await _context.SaveChangesAsync();
-                CreatedAtAction(nameof(GetCity), new { id = city.Id }, city);
-                return Ok(new {message = "Berhasil menambahkan data kota"});
+                return CreatedAtAction(nameof(GetCity), new { id = city.Id }, city);
             }
             catch (Exception ex)
             {
@@ -62,9 +78,25 @@ namespace javabus_api.Controllers
         [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateCity(int id, City city)
         {
+            if (string.IsNullOrWhiteSpace(city.Name))
+                return BadRequest(new { message = "Nama kota tidak boleh kosong" });
+
+            if (city.ProvinceId <= 0)
+                return BadRequest(new { message = "ProvinceId tidak valid" });
+
+            var existingProvince = await _context.Provinces.FindAsync(city.ProvinceId);
+            if (existingProvince == null)
+                return BadRequest(new { message = "Provinsi tidak ditemukan" });
+
             var cityData = await _context.Cities.FindAsync(id);
             if (cityData == null)
                 return NotFound(new { message = "Kota dengan id tersebut tidak ditemukan" });
+
+            var duplicateCity = await _context.Cities
+                .AnyAsync(c => c.Id != id && c.Name.ToLower() == city.Name.ToLower() && c.ProvinceId == city.ProvinceId);
+
+            if (duplicateCity)
+                return Conflict(new { message = "Kota dengan nama tersebut sudah ada di provinsi ini" });
 
             cityData.Name = city.Name;
             cityData.ProvinceId = city.ProvinceId;
@@ -72,13 +104,14 @@ namespace javabus_api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(new {messsage = "Berhasil memperbarui data kota"});
+                return Ok(new { message = "Berhasil memperbarui data kota" });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = "Gagal memperbarui data kota!", error = ex.Message });
             }
         }
+
 
         [HttpDelete("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCity(int id)

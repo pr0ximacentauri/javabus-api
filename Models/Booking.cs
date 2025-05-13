@@ -8,6 +8,8 @@ namespace javabus_api.Models
     {
         [Column("id_booking")]
         public int Id { get; set; }
+        //[Column("booking_date")]
+        //public DateTime BookingDate { get; set; }
         [Column("status")]
         public string Status { get; set; }
         [Column("fk_user")]

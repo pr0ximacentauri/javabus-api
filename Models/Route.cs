@@ -12,8 +12,8 @@ namespace javabus_api.Models
         public int OriginCityId { get; set; }
         [Column("destination_city_id")]
         public int DestinationCityId { get; set; }
-        [Column("estimated_duration")]
-        public TimeSpan? EstimatedDuration { get; set; }
+        //[Column("estimated_duration")]
+        //public TimeSpan? EstimatedDuration { get; set; }
 
         [JsonIgnore]
         public City? OriginCity { get; set; }

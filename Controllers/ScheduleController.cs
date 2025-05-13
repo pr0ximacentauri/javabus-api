@@ -30,6 +30,32 @@ namespace javabus_api.Controllers
             return Ok(schedules);
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Schedule>>> SearchSchedules([FromQuery] int routeId, [FromQuery] string date)
+        {
+            if (!DateTime.TryParse(date, out var parsedDate))
+            {
+                return BadRequest(new { message = "Format tanggal tidak valid" });
+            }
+
+            var startOfDayUtc = DateTime.SpecifyKind(parsedDate.Date, DateTimeKind.Utc);
+            var endOfDayUtc = DateTime.SpecifyKind(parsedDate.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
+
+            var schedules = await _context.Schedules
+                .Include(s => s.Bus)
+                .Include(s => s.Route)
+                .Where(s => s.RouteId == routeId &&
+                            s.DepartureTime >= startOfDayUtc &&
+                            s.DepartureTime <= endOfDayUtc)
+                .ToListAsync();
+
+            if (schedules == null || schedules.Count == 0)
+                return NotFound(new { message = "Jadwal tidak ditemukan" });
+
+            return Ok(schedules);
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Schedule>> GetSchedule(int id)
         {

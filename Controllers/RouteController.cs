@@ -16,7 +16,7 @@ namespace javabus_api.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "admin")]
         public async Task<ActionResult<IEnumerable<Models.Route>>> GetRoutes()
         {
             var routes = await _context.Routes
@@ -28,6 +28,49 @@ namespace javabus_api.Controllers
 
             return Ok(routes);
         }
+
+        [HttpGet("origins")]
+        public async Task<ActionResult<IEnumerable<City>>> GetAvailableOrigins()
+        {
+            var origins = await _context.Routes
+                .Include(r => r.OriginCity)
+                .Select(r => r.OriginCity)
+                .Distinct()
+                .ToListAsync();
+
+            if (origins.Count == 0)
+                return NotFound(new { message = "Tidak ada kota asal tersedia" });
+
+            return Ok(origins);
+        }
+
+        [HttpGet("destinations/{originId}")]
+        public async Task<ActionResult<IEnumerable<City>>> GetAvailableDestinations(int originId)
+        {
+            var destinations = await _context.Routes
+                .Where(r => r.OriginCityId == originId)
+                .Include(r => r.DestinationCity)
+                .Select(r => r.DestinationCity)
+                .Distinct()
+                .ToListAsync();
+
+            if (destinations.Count == 0)
+                return NotFound(new { message = "Tidak ada tujuan dari kota asal ini" });
+
+            return Ok(destinations);
+        }
+
+        //[HttpGet("check")]
+        //public async Task<IActionResult> CheckRoute([FromQuery] int originId, [FromQuery] int destinationId)
+        //{
+        //    var exists = await _context.Routes.AnyAsync(r =>
+        //        r.OriginCityId == originId && r.DestinationCityId == destinationId);
+
+        //    if (!exists)
+        //        return NotFound(new { message = "Terminal asal Anda tidak memiliki route ke terminal tujuan ini" });
+
+        //    return Ok(new { message = "Rute tersedia antara kota asal dan tujuan" });
+        //
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Models.Route>> GetRoute(int id)
@@ -42,6 +85,19 @@ namespace javabus_api.Controllers
 
             return route;
         }
+
+        [HttpGet("by-city")]
+        public async Task<ActionResult> GetRouteId([FromQuery] int originId, [FromQuery] int destinationId)
+        {
+            var route = await _context.Routes
+                .FirstOrDefaultAsync(r => r.OriginCityId == originId && r.DestinationCityId == destinationId);
+
+            if (route == null)
+                return NotFound(new { message = "Rute tidak ditemukan" });
+
+            return Ok(new { routeId = route.Id });
+        }
+
 
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Models.Route>> CreateRoute(Models.Route route)

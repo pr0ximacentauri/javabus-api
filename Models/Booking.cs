@@ -17,5 +17,10 @@ namespace javabus_api.Models
         [Column("fk_schedule")]
         public int ScheduleId {  get; set; }
 
+        [JsonIgnore]
+        public User? User { get; set; }
+        [JsonIgnore]
+        public Schedule? Schedule { get; set; }
+
     }
 }

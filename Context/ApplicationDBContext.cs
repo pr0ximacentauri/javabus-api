@@ -23,6 +23,17 @@ namespace javabus_api.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Schedule)
+                .WithMany()
+                .HasForeignKey(b => b.ScheduleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<City>()
                 .HasOne(c => c.Province)
                 .WithMany()
@@ -34,18 +45,17 @@ namespace javabus_api.Contexts
                 .WithMany()
                 .HasForeignKey(r => r.OriginCityId)
                 .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<Models.Route>()
                 .HasOne(r => r.DestinationCity)
                 .WithMany()
                 .HasForeignKey(r => r.DestinationCityId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Schedule>()
                 .HasOne(s => s.Bus)
                 .WithMany() 
                 .HasForeignKey(s => s.BusId)
                 .OnDelete(DeleteBehavior.Restrict); 
-
             modelBuilder.Entity<Schedule>()
                 .HasOne(s => s.Route)
                 .WithMany()

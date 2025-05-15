@@ -28,7 +28,7 @@ namespace javabus_api.Controllers
             if (await _context.Users.AnyAsync(u => u.Username == user.Username))
                 return BadRequest(new {message = "username already exist!"});
 
-            user.Password = HashPassword(user.Password);
+            user.Password = HashPassword(user.Password);    
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 

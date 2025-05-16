@@ -83,6 +83,7 @@ var app = builder.Build();
 //     app.UseSwaggerUI();
 // }
 app.UseSwagger();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();

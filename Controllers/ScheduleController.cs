@@ -84,10 +84,10 @@ namespace javabus_api.Controllers
             bool exists = await _context.Schedules
                 .AnyAsync(s => s.DepartureTime == schedule.DepartureTime && s.BusId == schedule.BusId);
 
-            if (exists)
-            {
-                return Conflict(new { message = "Jadwal dengan bus dan waktu keberangkatan tersebut sudah ada." });
-            }
+            //if (exists)
+            //{
+            //    return Conflict(new { message = "Jadwal dengan bus dan waktu keberangkatan tersebut sudah ada." });
+            //}
 
             try
             {

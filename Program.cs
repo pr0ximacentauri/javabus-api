@@ -6,7 +6,6 @@ using Microsoft.OpenApi.Models;
 using javabus_api.Contexts;
 using System.Security.Claims;
 using javabus_api.Settings;
-using javabus_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

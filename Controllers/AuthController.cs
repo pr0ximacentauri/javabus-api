@@ -61,11 +61,49 @@ namespace javabus_api.Controllers
         {
             return HashPassword(input) == hashed;
         }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User tidak ditemukan" });
+
+            user.Username = updatedUser.Username;
+            user.FullName = updatedUser.FullName;
+            user.Email = updatedUser.Email;
+
+            user.RoleId = 2;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Data pengguna berhasil diperbarui" });
+        }
+
+        [HttpPut("update-password/{id}")]
+        public async Task<IActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordRequest request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User tidak ditemukan" });
+
+            user.Password = HashPassword(request.NewPassword);
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password berhasil diperbarui" });
+        }
     }
 
     public class LoginRequest
     {
         public string Username { get; set; }
         public string Password { get; set; }
+    }
+    public class UpdatePasswordRequest
+    {
+        public string NewPassword { get; set; }
     }
 }

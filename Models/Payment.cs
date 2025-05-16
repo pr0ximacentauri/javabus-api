@@ -11,14 +11,14 @@ namespace javabus_api.Models
         [Column("fk_booking")]
         public int BookingId { get; set; }
         [Column("id_order")]
-        public int OrderId { get; set; }
+        public string OrderId { get; set; }
         [Column("gross_amount")]
         public int GrossAmount { get; set; }
         [Column("payment_type")]
         public string PaymentType { get; set; }
         [Column("payment_url")]
         public string PaymentUrl { get; set; }
-        [Column("transcation_status")]
+        [Column("transaction_status")]
         public string TransactionStatus { get; set; }
         [Column("transaction_time")]
         public DateTime TransactionTime { get; set; }

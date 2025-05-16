@@ -16,9 +16,11 @@ namespace javabus_api.Models
         public string Email { get; set; }
         [Column("password")]
         public string Password { get; set; }
+        [Column("image_url")]
+        public string ImageUrl { get; set; }
 
         [Column("fk_role"), JsonIgnore]
-        public int RoleId { get; set; } = 2;
+        public int RoleId { get; set; }
         [JsonIgnore]
         public Role? Role { get; set; }
     }

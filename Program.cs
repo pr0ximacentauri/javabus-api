@@ -5,6 +5,8 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using javabus_api.Contexts;
 using System.Security.Claims;
+using javabus_api.Settings;
+using javabus_api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +70,10 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<javabus_api.Helpers.JwtHelper>();
+builder.Services.AddScoped<MidtransService>();
+
+builder.Services.Configure<MidtransSetting>(builder.Configuration.GetSection("Midtrans"));
+
 
 var app = builder.Build();
 

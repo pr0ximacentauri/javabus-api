@@ -11,7 +11,7 @@ namespace javabus_api.Contexts
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Bus> Buses {  get; set; }
         public DbSet<City> Cities { get; set; }
-        public DbSet<Payment> Payment { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<Models.Route> Routes { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
@@ -61,6 +61,7 @@ namespace javabus_api.Contexts
                 .WithMany()
                 .HasForeignKey(s => s.RouteId)
                 .OnDelete(DeleteBehavior.Restrict); 
+
         }
     }
 }

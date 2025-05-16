@@ -1,7 +1,6 @@
 ﻿using javabus_api.Models;
 using Microsoft.AspNetCore.Mvc;
 using javabus_api.Contexts;
-using System.Text.Json;
 
 namespace javabus_api.Controllers
 {
@@ -21,7 +20,7 @@ namespace javabus_api.Controllers
         {
             try
             {
-                var redirectUrl = await _midtransService.CreateSnapTransactionAsync(dto.UserId, dto.GrossAmount);
+                var redirectUrl = await _midtransService.CreateSnapTransactionAsync(dto.BookingId, dto.GrossAmount);
 
                 return Ok(new
                 {
@@ -40,8 +39,7 @@ namespace javabus_api.Controllers
 
     public class PaymentRequestDto
     {
-        public int UserId { get; set; }
-        public int ScheduleId { get; set; }
+        public int BookingId { get; set; }
         public int GrossAmount { get; set; }
     }
 }

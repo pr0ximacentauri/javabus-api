@@ -15,9 +15,9 @@ public class MidtransService
         _settings = options.Value;
     }
 
-    public async Task<string> CreateSnapTransactionAsync(int userId, int grossAmount)
+    public async Task<string> CreateSnapTransactionAsync(int bookingId, int grossAmount)
     {
-        var orderId = $"ORDER-{DateTime.UtcNow.Ticks}";
+        var orderId = bookingId.ToString(); // Gunakan bookingId sebagai orderId Midtrans
         var authHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_settings.ServerKey}:"));
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
@@ -29,10 +29,9 @@ public class MidtransService
                 order_id = orderId,
                 gross_amount = grossAmount
             },
-            customer_details = new
+            callbacks = new
             {
-                first_name = $"User{userId}",
-                email = $"user{userId}@example.com"
+                finish = $"javabus://payment-success?orderId={orderId}"
             }
         };
 

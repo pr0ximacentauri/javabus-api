@@ -1,109 +1,68 @@
-﻿using javabus_api.Contexts;
-using javabus_api.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using javabus_api.Models;
+using System;
+using javabus_api.Contexts;
 
 namespace javabus_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingController : ControllerBase
+    public class BookingsController : ControllerBase
     {
-        public readonly ApplicationDBContext _context;
-        public BookingController(ApplicationDBContext context)
+        private readonly ApplicationDBContext _context;
+
+        public BookingsController(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookings()
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByUser(int userId)
         {
             var bookings = await _context.Bookings
+                .Where(b => b.UserId == userId)
+                .OrderByDescending(b => b.Id)
                 .ToListAsync();
 
             if (bookings == null || bookings.Count == 0)
-                return NotFound(new { message = "Tidak ada data provinsi" });
+                return NotFound("Tidak ada booking ditemukan.");
 
-            return Ok(bookings);
+            return bookings;
         }
-
+        
         [HttpGet("{id}")]
-        public async Task<ActionResult<Province>> GetProvince(int id)
+        public async Task<ActionResult<Booking>> GetBooking(int id)
         {
-            var province = await _context.Bookings
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var booking = await _context.Bookings.FindAsync(id);
 
-            if (province == null)
-                return NotFound(new { message = "Provinsi tidak ditemukan" });
+            if (booking == null)
+                return NotFound();
 
-            return Ok(province);
+            return booking;
         }
 
-        [HttpPost, Authorize(Roles = "admin")]
-        public async Task<ActionResult<Province>> CreateProvince(Province province)
+        [HttpPost]
+        public async Task<ActionResult<Booking>> CreateBooking([FromBody] BookingDto dto)
         {
-            if (string.IsNullOrWhiteSpace(province.Name))
-                return BadRequest(new { message = "Nama provinsi tidak boleh kosong" });
-
-            var duplicateProvince = await _context.Provinces
-                .AnyAsync(p => p.Name.ToLower() == province.Name.ToLower());
-
-            if (duplicateProvince)
-                return Conflict(new { message = "Provinsi dengan nama tersebut sudah ada" });
-
-            try
+            var booking = new Booking
             {
-                _context.Provinces.Add(province);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetProvince), new { id = province.Id }, province);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = "Gagal menambahkan data provinsi!", error = ex.Message });
-            }
-        }
+                Status = "pending",
+                UserId = dto.UserId,
+                ScheduleId = dto.ScheduleId
+            };
 
-        [HttpPut("{id}"), Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateProvince(int id, Province province)
-        {
-            if (string.IsNullOrWhiteSpace(province.Name))
-                return BadRequest(new { message = "Nama provinsi tidak boleh kosong" });
-
-            var provinceData = await _context.Provinces.FindAsync(id);
-            if (provinceData == null)
-                return NotFound(new { message = "Provinsi dengan id tersebut tidak ditemukan" });
-
-            var duplicateProvince = await _context.Provinces
-                .AnyAsync(p => p.Id != id && p.Name.ToLower() == province.Name.ToLower());
-
-            if (duplicateProvince)
-                return Conflict(new { message = "Provinsi dengan nama tersebut sudah ada" });
-
-            provinceData.Name = province.Name;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Berhasil memperbarui data provinsi" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = "Gagal memperbarui data provinsi!", error = ex.Message });
-            }
-        }
-
-        [HttpDelete("{id}"), Authorize(Roles = "admin")]
-        public async Task<IActionResult> DeleteCity(int id)
-        {
-            var province = await _context.Provinces.FindAsync(id);
-            if (province == null)
-                return NotFound(new { message = "Provinsi tidak ditemukan" });
-
-            _context.Provinces.Remove(province);
+            _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Provinsi berhasil dihapus" });
+            return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
         }
+
+    }
+
+    public class BookingDto
+    {
+        public int UserId { get; set; }
+        public int ScheduleId { get; set; }
     }
 }

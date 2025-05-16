@@ -58,11 +58,47 @@ namespace javabus_api.Controllers
             return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
         }
 
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateBookingStatus(int id, [FromBody] UpdateStatusDto dto)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound($"Booking dengan ID {id} tidak ditemukan.");
+            }
+
+            booking.Status = dto.Status;
+            _context.Entry(booking).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Bookings.Any(e => e.Id == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent(); 
+        }
+
     }
 
     public class BookingDto
     {
         public int UserId { get; set; }
         public int ScheduleId { get; set; }
+    }
+
+    public class UpdateStatusDto
+    {
+        public string Status { get; set; }
     }
 }

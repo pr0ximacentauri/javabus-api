@@ -17,7 +17,7 @@ public class MidtransService
 
     public async Task<string> CreateSnapTransactionAsync(int bookingId, int grossAmount)
     {
-        var orderId = bookingId.ToString(); // Gunakan bookingId sebagai orderId Midtrans
+        var orderId = $"booking-{bookingId}-{DateTime.UtcNow.Ticks}";
         var authHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_settings.ServerKey}:"));
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authHeader);

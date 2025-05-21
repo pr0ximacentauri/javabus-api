@@ -8,10 +8,10 @@ namespace javabus_api.Models
     {
         [Column("id_payment")]
         public int Id { get; set; }
-        [Column("fk_booking")]
-        public int BookingId { get; set; }
         [Column("id_order")]
         public string OrderId { get; set; }
+        [Column("booking_id")]
+        public int BookingId { get; set; }
         [Column("gross_amount")]
         public int GrossAmount { get; set; }
         [Column("payment_type")]

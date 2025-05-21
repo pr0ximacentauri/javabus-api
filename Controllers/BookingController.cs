@@ -3,16 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using javabus_api.Models;
 using System;
 using javabus_api.Contexts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace javabus_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingsController : ControllerBase
+    public class BookingController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
 
-        public BookingsController(ApplicationDBContext context)
+        public BookingController(ApplicationDBContext context)
         {
             _context = context;
         }
@@ -89,6 +90,18 @@ namespace javabus_api.Controllers
             return NoContent(); 
         }
 
+        [HttpDelete("{id}"), Authorize("admin")]
+        public async Task<IActionResult> DeleteBooking(int id)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+                return NotFound(new { message = "Booking tidak ditemukan" });
+
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Booking berhasil dihapus" });
+        }
     }
 
     public class BookingDto

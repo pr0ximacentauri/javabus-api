@@ -10,7 +10,7 @@ namespace javabus_api.Models
         public int Id { get; set; }
         [Column("name")]
         public string Name { get; set; }
-        [Column("class")]
+        [Column("bus_class")]
         public string BusClass { get; set; }
         [Column("total_seat")]
         public int TotalSeat { get; set; }

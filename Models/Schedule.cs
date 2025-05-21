@@ -12,9 +12,9 @@ namespace javabus_api.Models
         public DateTime DepartureTime { get; set; }
         [Column("ticket_price")]
         public int TicketPrice { get; set; }
-        [Column("fk_bus")]
+        [Column("bus_id")]
         public int BusId { get; set; }
-        [Column("fk_route")]
+        [Column("route_id")]
         public int RouteId { get; set; }
 
 

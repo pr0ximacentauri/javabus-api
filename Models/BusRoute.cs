@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace javabus_api.Models
 {
-    [Table("routes")]
+    [Table("bus_routes")]
     public class Route
     {
         [Column("id_route")]

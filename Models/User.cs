@@ -17,7 +17,7 @@ namespace javabus_api.Models
         [Column("password")]
         public string Password { get; set; }
 
-        [Column("fk_role"), JsonIgnore]
+        [Column("role_id")]
         public int RoleId { get; set; }
         [JsonIgnore]
         public Role? Role { get; set; }

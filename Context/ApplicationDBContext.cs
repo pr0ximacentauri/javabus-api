@@ -13,7 +13,7 @@ namespace javabus_api.Contexts
         public DbSet<City> Cities { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Province> Provinces { get; set; }
-        public DbSet<Models.Route> Routes { get; set; }
+        public DbSet<Models.BusRoute> Routes { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<User> Users { get; set; }
 
@@ -40,12 +40,12 @@ namespace javabus_api.Contexts
                 .HasForeignKey(c => c.ProvinceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Models.Route>()
+            modelBuilder.Entity<Models.BusRoute>()
                 .HasOne(r => r.OriginCity)
                 .WithMany()
                 .HasForeignKey(r => r.OriginCityId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Models.Route>()
+            modelBuilder.Entity<Models.BusRoute>()
                 .HasOne(r => r.DestinationCity)
                 .WithMany()
                 .HasForeignKey(r => r.DestinationCityId)

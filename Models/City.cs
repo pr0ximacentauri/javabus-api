@@ -10,7 +10,7 @@ namespace javabus_api.Models
         public int Id { get; set; }
         [Column("name")]
         public string Name { get; set; }
-        [Column("fk_province")]
+        [Column("province_id")]
         public int ProvinceId { get; set; }
         public Province? Province { get; set; }
     }

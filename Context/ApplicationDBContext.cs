@@ -10,11 +10,15 @@ namespace javabus_api.Contexts
     {
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Bus> Buses {  get; set; }
+        public DbSet<BusSeat> BusSeats { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Province> Provinces { get; set; }
-        public DbSet<Models.BusRoute> Routes { get; set; }
+        public DbSet<BusRoute> Routes { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<SeatBooking> SeatBookings { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) 
@@ -34,21 +38,27 @@ namespace javabus_api.Contexts
                 .HasForeignKey(b => b.ScheduleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<City>()
-                .HasOne(c => c.Province)
-                .WithMany()
-                .HasForeignKey(c => c.ProvinceId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Models.BusRoute>()
+            modelBuilder.Entity<BusRoute>()
                 .HasOne(r => r.OriginCity)
                 .WithMany()
                 .HasForeignKey(r => r.OriginCityId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<Models.BusRoute>()
+            modelBuilder.Entity<BusRoute>()
                 .HasOne(r => r.DestinationCity)
                 .WithMany()
                 .HasForeignKey(r => r.DestinationCityId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BusSeat>()
+                .HasOne(bs => bs.Bus)
+                .WithMany()
+                .HasForeignKey(bs => bs.BusId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<City>()
+                .HasOne(c => c.Province)
+                .WithMany()
+                .HasForeignKey(c => c.ProvinceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Schedule>()
@@ -60,7 +70,26 @@ namespace javabus_api.Contexts
                 .HasOne(s => s.Route)
                 .WithMany()
                 .HasForeignKey(s => s.RouteId)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<SeatBooking>()
+                .HasOne(sb => sb.Booking)
+                .WithMany()
+                .HasForeignKey(sb => sb.BookingId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SeatBooking>()
+                .HasOne(sb => sb.Schedule)
+                .WithMany()
+                .HasForeignKey(sb => sb.ScheduleId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SeatBooking>()
+                .HasOne(sb => sb.Seat)
+                .WithMany()
+                .HasForeignKey(sb => sb.SeatId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<SeatBooking>()
+                .HasIndex(sb => new { sb.ScheduleId, sb.SeatId })
+                .IsUnique();
 
         }
     }

@@ -21,6 +21,6 @@ namespace javabus_api.Models
         [JsonIgnore]
         public Bus? Bus { get; set; }
         [JsonIgnore]
-        public Models.Route? Route { get; set; }
+        public Models.BusRoute? Route { get; set; }
     }
 }

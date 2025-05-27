@@ -8,7 +8,7 @@ namespace javabus_api.Models
     {
         [Column("id_booking")]
         public int Id { get; set; }
-        [Column("status")]
+        [Column("status_booking")]
         public string Status { get; set; }
         [Column("user_id")]
         public int UserId { get; set; }

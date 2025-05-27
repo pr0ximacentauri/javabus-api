@@ -43,6 +43,61 @@ namespace javabus_api.Controllers
             return Ok(city);
         }
 
+        [HttpPost("bulk"), Authorize(Roles = "admin")]
+        public async Task<IActionResult> CreateCities(List<City> cities)
+        {
+            if (cities == null || cities.Count == 0)
+                return BadRequest(new { message = "Data kota tidak boleh kosong" });
+
+            var errors = new List<object>();
+            var newCities = new List<City>();
+
+            foreach (var city in cities)
+            {
+                if (string.IsNullOrWhiteSpace(city.Name) || city.ProvinceId <= 0)
+                {
+                    errors.Add(new { city = city.Name, message = "Nama atau ProvinceId tidak valid" });
+                    continue;
+                }
+
+                var existingProvince = await _context.Provinces.FindAsync(city.ProvinceId);
+                if (existingProvince == null)
+                {
+                    errors.Add(new { city = city.Name, message = "Provinsi tidak ditemukan" });
+                    continue;
+                }
+
+                var duplicate = await _context.Cities
+                    .AnyAsync(c => c.Name.ToLower() == city.Name.ToLower() && c.ProvinceId == city.ProvinceId);
+                if (duplicate)
+                {
+                    errors.Add(new { city = city.Name, message = "Kota sudah ada di provinsi ini" });
+                    continue;
+                }
+
+                newCities.Add(city);
+            }
+
+            if (newCities.Count == 0)
+                return BadRequest(new { message = "Tidak ada data kota yang valid untuk ditambahkan", errors });
+
+            try
+            {
+                _context.Cities.AddRange(newCities);
+                await _context.SaveChangesAsync();
+                return Ok(new
+                {
+                    message = $"{newCities.Count} kota berhasil ditambahkan.",
+                    errors
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Gagal menambahkan data kota!", error = ex.Message });
+            }
+        }
+
+
 
         [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<City>> CreateCity(City city)

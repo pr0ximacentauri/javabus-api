@@ -12,6 +12,8 @@ namespace javabus_api.Models
         public string Name { get; set; }
         [Column("province_id")]
         public int ProvinceId { get; set; }
+
+        //[JsonIgnore]
         public Province? Province { get; set; }
     }
 }

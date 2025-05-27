@@ -11,5 +11,7 @@ namespace javabus_api.Models
         public string SeatNumber { get; set; }
         [Column("bus_id")]
         public int BusId { get; set; }
+
+        public Bus Bus { get; set; }
     }
 }

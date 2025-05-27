@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace javabus_api.Models
 {
     [Table("bus_routes")]
-    public class Route
+    public class BusRoute
     {
         [Column("id_route")]
         public int Id { get; set; }

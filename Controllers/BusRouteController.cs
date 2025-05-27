@@ -7,17 +7,17 @@ namespace javabus_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RouteController : ControllerBase
+    public class BusRouteController : ControllerBase
     {
         private readonly Contexts.ApplicationDBContext _context;
 
-        public RouteController(Contexts.ApplicationDBContext context)
+        public BusRouteController(Contexts.ApplicationDBContext context)
         {
             _context = context;
         }
 
-        [HttpGet, Authorize(Roles = "admin")]
-        public async Task<ActionResult<IEnumerable<Models.Route>>> GetRoutes()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<BusRoute>>> GetRoutes()
         {
             var routes = await _context.Routes
                 .Include(r => r.OriginCity)
@@ -73,7 +73,7 @@ namespace javabus_api.Controllers
         //
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Models.Route>> GetRoute(int id)
+        public async Task<ActionResult<BusRoute>> GetRoute(int id)
         {
             var route = await _context.Routes
                 .Include(r => r.OriginCity)
@@ -100,7 +100,7 @@ namespace javabus_api.Controllers
 
 
         [HttpPost, Authorize(Roles = "admin")]
-        public async Task<ActionResult<Models.Route>> CreateRoute(Models.Route route)
+        public async Task<ActionResult<BusRoute>> CreateRoute(BusRoute route)
         {
             if (route.OriginCityId == 0 || route.DestinationCityId == 0)
                 return BadRequest(new { message = "Kota asal dan tujuan wajib diisi" });
@@ -133,7 +133,7 @@ namespace javabus_api.Controllers
         }
 
         [HttpPut("{id}"), Authorize(Roles = "admin")]
-        public async Task<IActionResult> UpdateRoute(int id, Models.Route route)
+        public async Task<IActionResult> UpdateRoute(int id, Models.BusRoute route)
         {
             if (route.OriginCityId == 0 || route.DestinationCityId == 0)
                 return BadRequest(new { message = "Kota asal dan tujuan wajib diisi" });
